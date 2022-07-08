@@ -10,13 +10,9 @@
 
 package org.junit.jupiter.api;
 
-import static org.junit.jupiter.api.AssertionUtils.buildPrefix;
-import static org.junit.jupiter.api.AssertionUtils.format;
-import static org.junit.jupiter.api.AssertionUtils.nullSafeGet;
+import static org.junit.jupiter.api.AssertionBuilder.assertion;
 
 import java.util.function.Supplier;
-
-import org.opentest4j.AssertionFailedError;
 
 /**
  * {@code AssertInstanceOf} is a collection of utility methods that support
@@ -45,10 +41,12 @@ class AssertInstanceOf {
 
 	private static <T> T assertInstanceOf(Class<T> expectedType, Object actualValue, Object messageOrSupplier) {
 		if (!expectedType.isInstance(actualValue)) {
-			String reason = (actualValue == null ? "Unexpected null value" : "Unexpected type");
-			String message = buildPrefix(nullSafeGet(messageOrSupplier))
-					+ format(expectedType, actualValue == null ? null : actualValue.getClass(), reason);
-			throw new AssertionFailedError(message);
+			assertion() //
+					.message(messageOrSupplier) //
+					.reason(actualValue == null ? "Unexpected null value" : "Unexpected type") //
+					.expected(expectedType) //
+					.actual(actualValue == null ? null : actualValue.getClass()) //
+					.fail();
 		}
 		return expectedType.cast(actualValue);
 	}

@@ -11,6 +11,7 @@
 package org.junit.jupiter.api;
 
 import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.AssertionBuilder.assertion;
 
 import java.util.Deque;
 import java.util.function.Supplier;
@@ -59,14 +60,22 @@ class AssertionUtils {
 	 * Typically used for {@code assertEquals()}.
 	 */
 	static void failNotEqual(Object expected, Object actual, String message) {
-		fail(format(expected, actual, message), expected, actual);
+		assertion() //
+				.message(message) //
+				.expected(expected) //
+				.actual(actual) //
+				.fail();
 	}
 
 	/**
 	 * Typically used for {@code assertEquals()}.
 	 */
 	static void failNotEqual(Object expected, Object actual, Supplier<String> messageSupplier) {
-		fail(format(expected, actual, nullSafeGet(messageSupplier)), expected, actual);
+		assertion() //
+				.message(messageSupplier) //
+				.expected(expected) //
+				.actual(actual) //
+				.fail();
 	}
 
 	static String nullSafeGet(Supplier<String> messageSupplier) {
@@ -81,16 +90,14 @@ class AssertionUtils {
 	 * {@code Supplier<String>}
 	 */
 	static String nullSafeGet(Object messageOrSupplier) {
-		if (messageOrSupplier instanceof String) {
-			return (String) messageOrSupplier;
+		if (messageOrSupplier == null) {
+			return null;
 		}
 		if (messageOrSupplier instanceof Supplier) {
 			Object message = ((Supplier<?>) messageOrSupplier).get();
-			if (message != null) {
-				return message.toString();
-			}
+			return message == null ? null : message.toString();
 		}
-		return null;
+		return String.valueOf(messageOrSupplier);
 	}
 
 	static String buildPrefix(String message) {
